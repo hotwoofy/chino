@@ -60,16 +60,21 @@
    (coll? value) (to-js-array value)
    (fn? value) (to-js-function value)))
 
-(defmacro with-context
-  [context-binding & body]
-  `(let [~(first context-binding) (Context/enter)]
+(defmacro with-context [[context-binding] & body]
+  `(let [~context-binding (Context/enter)]
      (try
        (do ~@body)
        (finally
         (Context/exit)))))
 
+(defn init-scope [^Context context vars]
+  (to-js-object (.initStandardObjects context nil true) vars))
+
 (defn eval
   ([src] (eval {} src))
-  ([scope src] (with-context [context]
-                 (let [scope (to-js-object (.initStandardObjects context nil true) scope)]
-                   (from-js context scope (.evaluateString context scope src, "<eval>", 0, nil) nil)))))
+  ([vars src]
+     (with-context [context]
+       (let [scope (init-scope context vars)]
+         (eval context scope src))))
+  ([^Context context ^ScriptableObject scope src]
+     (from-js context scope (.evaluateString context scope src, "<eval>", 0, nil) nil)))

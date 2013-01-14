@@ -48,3 +48,11 @@
                                               :getName #(str (:forename js/*this*) " "
                                                              (:surname js/*this*))}}
                                     "person.getName()")))))
+
+(deftest maintains-scope?
+  (testing "reusing scope"
+    (js/with-context [context]
+      (let [scope (js/init-scope context {:a 1 :b 2})]
+        (js/eval context scope "a++")
+        (js/eval context scope "b++")
+        (is (= 5.0 (js/eval context scope "a + b")))))))
