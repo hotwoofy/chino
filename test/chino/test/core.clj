@@ -42,4 +42,9 @@
     (is (= [1.0 2.0 3.0] (js/eval { :a #{1 2 3} } "a")))
     (is (= [1.0 2.0 3.0] (js/eval { :a '(1 2 3) } "a"))))
   (testing "can pass in functions"
-    (is (= "Hello, World" (js/eval { :greet (fn [name] (str "Hello, " name)) } "greet('World')")))))
+    (is (= "Hello, World" (js/eval { :greet (fn [name] (str "Hello, " name)) } "greet('World')")))
+    (is (= "Thom Lawrence" (js/eval {:person {:forename "Thom"
+                                              :surname "Lawrence"
+                                              :getName #(str (:forename js/*this*) " "
+                                                             (:surname js/*this*))}}
+                                    "person.getName()")))))

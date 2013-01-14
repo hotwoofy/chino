@@ -31,10 +31,13 @@
 
 (declare to-js)
 
+(def ^:dynamic *this* nil)
+
 (defn to-js-function [func]
   (proxy [BaseFunction] []
     (call [context scope this args]
-      (apply func (map to-js args)))))
+      (binding [*this* (from-js context scope this nil)]
+       (apply func (map to-js args))))))
 
 (defn to-js-object
   ([map] (to-js-object (NativeObject.) map))
